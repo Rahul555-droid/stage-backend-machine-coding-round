@@ -1,19 +1,12 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
-import { ListService } from './list.service';
+import { ListSchemaProvider } from 'src/models/list.schema';
+import { MovieSchemaProvider } from 'src/models/movie.schema';
+import { TVShowSchemaProvider } from 'src/models/tvshow.schema';
 import { ListController } from './list.controller';
-import { List, ListSchema } from 'src/models/list.schema';
-import { Movie, MovieSchema } from 'src/models/movie.schema';
-import { TVShow, TVShowSchema } from 'src/models/tvshow.schema';
+import { ListService } from './list.service';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([
-      { name: List.name, schema: ListSchema },
-      { name: Movie.name, schema: MovieSchema },
-      { name: TVShow.name, schema: TVShowSchema },
-    ]),
-  ],
+  imports: [MovieSchemaProvider, TVShowSchemaProvider, ListSchemaProvider],
   controllers: [ListController],
   providers: [ListService],
 })

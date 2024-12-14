@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { MoviesModule } from './movies/movies.module';
 import { TvshowsModule } from './tvshows/tvshows.module';
 import { ListModule } from './list/list.module';
+import { SeedModule } from './seed/seed.module';
 
 @Module({
   imports: [
@@ -10,6 +11,7 @@ import { ListModule } from './list/list.module';
     MoviesModule,
     TvshowsModule,
     ListModule,
+    SeedModule
   ],
 })
 export class AppModule {}

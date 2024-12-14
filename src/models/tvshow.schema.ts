@@ -1,7 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Mongoose } from 'mongoose';
 import { Episode, EpisodeSchema } from './episode.schema';
 import { genre } from '../constants/constants';
+import { MongooseModule } from '@nestjs/mongoose';
 
 export type TVShowDocument = TVShow & Document;
 
@@ -28,3 +29,6 @@ export class TVShow {
 }
 
 export const TVShowSchema = SchemaFactory.createForClass(TVShow);
+export const TVShowSchemaProvider = MongooseModule.forFeature([
+  { name: TVShow.name, schema: TVShowSchema },
+]);

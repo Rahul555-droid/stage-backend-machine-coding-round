@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
+import { MongooseModule } from '@nestjs/mongoose';
 
 export type ListDocument = List & Document;
 
@@ -16,3 +17,7 @@ export class List {
 }
 
 export const ListSchema = SchemaFactory.createForClass(List);
+
+export const ListSchemaProvider = MongooseModule.forFeature([
+  { name: List.name, schema: ListSchema },
+]);

@@ -37,18 +37,6 @@ export class ListService {
     return newListItem.save();
   }
 
-  // async listMyItems(limit = 10, offset = 0) {
-  //   return this.listModel
-  //     .find()
-  //     .skip(offset)
-  //     .limit(limit)
-  //     .populate({
-  //       path: 'itemId',
-  //       select: 'title description', // Specify the fields to include in the populated document
-  //     })
-  //     .exec();
-  // }
-
   async listMyItems(limit = 10, offset = 0) {
     return this.listModel.aggregate([
       { $skip: offset },
@@ -81,7 +69,6 @@ export class ListService {
     ]);
   }
   
-
   async removeFromList(itemId: string, type: 'movie' | 'tvshow') {
     const item = await this.listModel.findOneAndDelete({ itemId, type });
     if (!item) {

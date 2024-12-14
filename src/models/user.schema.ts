@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 export type UserDocument = User & Document;
 import { genre } from '../constants/constants';
+import { MongooseModule } from '@nestjs/mongoose';
 
 @Schema()
 export class User {
@@ -54,3 +55,6 @@ export class User {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+export const UserSchemaProvider = MongooseModule.forFeature([
+  { name: User.name, schema: UserSchema },
+]);
