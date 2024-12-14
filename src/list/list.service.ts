@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { List, ListDocument } from 'src/models/list.schema';
 import { Movie, MovieDocument } from 'src/models/movie.schema';
 import { TVShow, TVShowDocument } from 'src/models/tvshow.schema';
+import { User, UserDocument } from 'src/models/user.schema';
 
 @Injectable()
 export class ListService {
@@ -11,6 +12,7 @@ export class ListService {
     @InjectModel(List.name) private listModel: Model<ListDocument>,
     @InjectModel(Movie.name) private movieModel: Model<MovieDocument>,
     @InjectModel(TVShow.name) private tvShowModel: Model<TVShowDocument>,
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
   ) {}
 
   async addToList(itemId: string, type: 'movie' | 'tvshow') {
@@ -68,7 +70,7 @@ export class ListService {
       },
     ]);
   }
-  
+   
   async removeFromList(itemId: string, type: 'movie' | 'tvshow') {
     const item = await this.listModel.findOneAndDelete({ itemId, type });
     if (!item) {
