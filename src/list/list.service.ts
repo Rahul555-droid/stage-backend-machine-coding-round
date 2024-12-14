@@ -1,115 +1,93 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { List , ListDocument } from 'src/models/list.schema';
-import { Movie } from 'src/models/movie.schema';
-import { TVShow } from 'src/models/tvshow.schema';
+import { List, ListDocument } from 'src/models/list.schema';
+import { Movie, MovieDocument } from 'src/models/movie.schema';
+import { TVShow, TVShowDocument } from 'src/models/tvshow.schema';
 
 @Injectable()
 export class ListService {
   constructor(
     @InjectModel(List.name) private listModel: Model<ListDocument>,
-    @InjectModel(Movie.name) private movieModel: Model<Movie>,
-    @InjectModel(TVShow.name) private tvShowModel: Model<TVShow>,
+    @InjectModel(Movie.name) private movieModel: Model<MovieDocument>,
+    @InjectModel(TVShow.name) private tvShowModel: Model<TVShowDocument>,
   ) {}
 
-  // Add an item to the list
-  async addToList(userId: string, itemId: string, type: 'movie' | 'tvshow') {
-    const list = await this.listModel.findOne({ userId });
-
-    if (!list) {
-      throw new NotFoundException('List not found for the user');
-    }
-
+  async addToList(itemId: string, type: 'movie' | 'tvshow') {
+    // Step 1: Validate the item type and existence
+    let itemExists = null;
     if (type === 'movie') {
-      if (list.movies.includes(itemId)) {
-        throw new BadRequestException('Movie already exists in the list');
-      }
-      list.movies.push(itemId);
+      itemExists = await this.movieModel.exists({ _id: itemId });
     } else if (type === 'tvshow') {
-      if (list.tvshows.includes(itemId)) {
-        throw new BadRequestException('TV Show already exists in the list');
-      }
-      list.tvshows.push(itemId);
+      itemExists = await this.tvShowModel.exists({ _id: itemId });
     }
 
-    await list.save();
-    return { message: 'Item added to the list' };
+    if (!itemExists) {
+      throw new BadRequestException('Invalid itemId or type.');
+    }
+
+    // Step 2: Check for duplicates
+    const duplicate = await this.listModel.findOne({ itemId, type });
+    if (duplicate) {
+      throw new BadRequestException('Item already exists in the list.');
+    }
+
+    // Step 3: Add item to the list
+    const newListItem = new this.listModel({ itemId, type });
+    return newListItem.save();
   }
 
-  // Remove an item from the list
-  async removeFromList(
-    userId: string,
-    itemId: string,
-    type: 'movie' | 'tvshow',
-  ) {
-    const list = await this.listModel.findOne({ userId });
+  // async listMyItems(limit = 10, offset = 0) {
+  //   return this.listModel
+  //     .find()
+  //     .skip(offset)
+  //     .limit(limit)
+  //     .populate({
+  //       path: 'itemId',
+  //       select: 'title description', // Specify the fields to include in the populated document
+  //     })
+  //     .exec();
+  // }
 
-    if (!list) {
-      throw new NotFoundException('List not found for the user');
-    }
-
-    if (type === 'movie') {
-      const index = list.movies.indexOf(itemId);
-      if (index === -1) {
-        throw new NotFoundException('Movie not found in the list');
-      }
-      list.movies.splice(index, 1);
-    } else if (type === 'tvshow') {
-      const index = list.tvshows.indexOf(itemId);
-      if (index === -1) {
-        throw new NotFoundException('TV Show not found in the list');
-      }
-      list.tvshows.splice(index, 1);
-    }
-
-    await list.save();
-    return { message: 'Item removed from the list' };
+  async listMyItems(limit = 10, offset = 0) {
+    return this.listModel.aggregate([
+      { $skip: offset },
+      { $limit: limit },
+      {
+        $lookup: {
+          from: 'movies', // MongoDB collection name for movies
+          localField: 'itemId',
+          foreignField: '_id',
+          as: 'movieDetails',
+        },
+      },
+      {
+        $lookup: {
+          from: 'tvshows', // MongoDB collection name for TV shows
+          localField: 'itemId',
+          foreignField: '_id',
+          as: 'tvShowDetails',
+        },
+      },
+      {
+        $project: {
+          itemId: 1,
+          type: 1,
+          dateAdded: 1,
+          movieDetails: { $arrayElemAt: ['$movieDetails', 0] },
+          tvShowDetails: { $arrayElemAt: ['$tvShowDetails', 0] },
+        },
+      },
+    ]);
   }
+  
 
-  // List all items in the user's list with pagination
-  async listMyItems(userId: string, limit: number, offset: number) {
-    const list = await this.listModel.findOne({ userId });
-
-    if (!list) {
-      throw new NotFoundException('List not found for the user');
+  async removeFromList(itemId: string, type: 'movie' | 'tvshow') {
+    const item = await this.listModel.findOneAndDelete({ itemId, type });
+    if (!item) {
+      throw new BadRequestException('Item not found in the list.');
     }
-
-    const movieItems = await this.movieModel
-      .find({ _id: { $in: list.movies } })
-      .skip(offset)
-      .limit(limit);
-    const tvShowItems = await this.tvShowModel
-      .find({ _id: { $in: list.tvshows } })
-      .skip(offset)
-      .limit(limit);
-
-    return { movies: movieItems, tvshows: tvShowItems };
+    return { message: 'Item successfully removed from the list.' };
   }
-
-  // List users who have a particular item in their list
-  async listUser(itemId: string, type: 'movie' | 'tvshow') {
-    let usersWithItem;
-    if (type === 'movie') {
-      usersWithItem = await this.listModel
-        .find({ movies: itemId })
-        .select('userId');
-    } else if (type === 'tvshow') {
-      usersWithItem = await this.listModel
-        .find({ tvshows: itemId })
-        .select('userId');
-    }
-
-    if (!usersWithItem) {
-      throw new NotFoundException(
-        'No users found with this item in their list',
-      );
-    }
-
-    return usersWithItem;
-  }
+    
 }
