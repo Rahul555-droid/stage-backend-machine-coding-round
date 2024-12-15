@@ -10,11 +10,20 @@ Welcome to the OTT Platform "My List" feature evaluation project. This project i
 6. Wrote modular and cleaner code.
 
 
-   Output
 
+#Output
+
+POST list
 ![image](https://github.com/user-attachments/assets/77747cb9-e9b5-4212-9638-9fe6c03f65f0)
 
-![image](https://github.com/user-attachments/assets/2674ac8f-e2b1-42c0-8cdd-5736f1395dc3)
+GET list
+![image](https://github.com/user-attachments/assets/bc2e3f2b-1948-4584-8c6e-8d017c5748f7)
 
+DELETE list
+![image](https://github.com/user-attachments/assets/e204e423-11a1-424a-aec2-17027450fa2e)
+
+login 
 ![image](https://github.com/user-attachments/assets/fd943d8e-b5c0-45bb-b89c-0880976f5d26)
+
+register
 
