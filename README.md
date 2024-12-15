@@ -1,6 +1,6 @@
 # OTT Platform "My List" Feature - Developer Evaluation Project
 
-Welcome to the OTT Platform "My List" feature evaluation project. This project is designed to assess your problem-solving skills, debugging abilities, and overall proficiency in improving an existing codebase. The project is built using [NestJS](https://nestjs.com/), and your task will involve refining the current implementation and adding new features.
+You can see detailed changes in my code in a draft PR here => https://github.com/Rahul555-droid/stage-backend-machine-coding-round/pull/1/files
 
 ## Changes Made :
 1. Implemented all the list apis => GET list , POST list , DELETE list.
