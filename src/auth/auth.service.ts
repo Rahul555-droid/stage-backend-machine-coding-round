@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
@@ -43,5 +44,14 @@ export class AuthService {
   async generateToken(userId: string): Promise<string> {
     const secret = process.env.JWT_SECRET || 'defaultSecret'; // Replace with your env secret
     return jwt.sign({ userId }, secret, { expiresIn: '1h' });
+  }
+
+  async verifyToken(token: string): Promise<{ userId: string }> {
+    const secret = process.env.JWT_SECRET || 'defaultSecret';
+    try {
+      return jwt.verify(token, secret) as { userId: string };
+    } catch (error) {
+      throw new UnauthorizedException('Invalid or expired token.');
+    }
   }
 }

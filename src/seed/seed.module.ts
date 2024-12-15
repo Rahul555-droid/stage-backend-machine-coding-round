@@ -1,17 +1,11 @@
 import { Module } from '@nestjs/common';
-import { ListSchemaProvider } from 'src/models/list.schema';
 import { MovieSchemaProvider } from 'src/models/movie.schema';
 import { TVShowSchemaProvider } from 'src/models/tvshow.schema';
-import { SeedService } from './seed.service';
 import { UserSchemaProvider } from 'src/models/user.schema';
+import { SeedService } from './seed.service';
 
 @Module({
-  imports: [
-    MovieSchemaProvider,
-    TVShowSchemaProvider,
-    ListSchemaProvider,
-    UserSchemaProvider,
-  ],
+  imports: [MovieSchemaProvider, TVShowSchemaProvider, UserSchemaProvider],
   providers: [SeedService],
 })
 export class SeedModule {}

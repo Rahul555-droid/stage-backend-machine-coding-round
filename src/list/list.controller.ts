@@ -1,54 +1,54 @@
-import { Controller, Post, Get, Delete, Query, Body, Param } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from 'src/auth/auth.gaurd';
 import { ListService } from './list.service';
-import { ApiTags, ApiOperation, ApiQuery, ApiParam, ApiBody } from '@nestjs/swagger';
+import { ContentType, ListItemDto } from './dto/list-item.dto';
 
 @Controller('list')
 @ApiTags('List') // Groups this controller under the "List" section in Swagger
+@UseGuards(AuthGuard)
 export class ListController {
   constructor(private readonly listService: ListService) {}
 
   @Post()
   @ApiOperation({ summary: 'Add an item to the list' }) // Describes the purpose of this endpoint
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        itemId: { type: 'string', description: 'ID of the movie or TV show' },
-        type: { 
-          type: 'string', 
-          enum: ['movie', 'tvshow'], 
-          description: 'Type of item (movie or TV show)' 
-        },
-      },
-      required: ['itemId', 'type'],
-    },
-  })
-  async addToList(@Body() body: { itemId: string; type: 'movie' | 'tvshow' }) {
-    return this.listService.addToList(body.itemId, body.type);
+  async addToList(
+    @Body() listItemDto: ListItemDto,
+    @Req() req: Request, // Extract userId from request
+  ) {
+    const userId = req['user'].id; // Assume the payload contains `id`
+    return this.listService.addToList(userId, listItemDto);
   }
 
   @Get()
   @ApiOperation({ summary: 'Retrieve items from the list with pagination' })
-  @ApiQuery({ name: 'limit', type: 'number', required: false, description: 'Number of items per page' })
-  @ApiQuery({ name: 'offset', type: 'number', required: false, description: 'Offset for pagination' })
-  async listMyItems(@Query('limit') limit = 10, @Query('offset') offset = 0) {
-    return this.listService.listMyItems(+limit, +offset);
+  async listMyItems(
+    @Req() req: Request,
+    @Query('limit') limit = 10,
+    @Query('offset') offset = 0,
+  ) {
+    const userId = req['user'].id;
+    return this.listService.listMyItems(userId, +limit, +offset);
   }
 
   @Delete(':itemId')
   @ApiOperation({ summary: 'Remove an item from the list' })
-  @ApiParam({ name: 'itemId', type: 'string', description: 'ID of the item to be removed' })
-  @ApiQuery({
-    name: 'type',
-    type: 'string',
-    enum: ['movie', 'tvshow'],
-    required: true,
-    description: 'Type of the item (movie or TV show)',
-  })
   async removeFromList(
     @Param('itemId') itemId: string,
-    @Query('type') type: 'movie' | 'tvshow',
+    @Query('type') type: ContentType,
+    @Req() req: Request,
   ) {
-    return this.listService.removeFromList(itemId, type);
+    const userId = req['user'].id;
+    return this.listService.removeFromList(userId, itemId, type);
   }
 }

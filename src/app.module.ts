@@ -5,6 +5,7 @@ import { MoviesModule } from './movies/movies.module';
 import { SeedModule } from './seed/seed.module';
 import { TvshowsModule } from './tvshows/tvshows.module';
 import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { UserModule } from './user/user.module';
     ListModule,
     SeedModule,
     UserModule,
+    AuthModule
   ],
 })
 export class AppModule {}

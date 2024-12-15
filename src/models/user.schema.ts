@@ -1,11 +1,12 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-export type UserDocument = User & Document;
 import { genre } from '../constants/constants';
-import { MongooseModule } from '@nestjs/mongoose';
+export type UserDocument = User & Document;
 
 @Schema()
 export class User {
+  _id: string; // Add this field to include the MongoDB _id
+
   @Prop({ required: true })
   username: string;
 
