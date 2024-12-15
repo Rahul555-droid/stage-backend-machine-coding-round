@@ -7,7 +7,7 @@ import { AuthService } from './auth.service';
 @Module({
   imports: [
     UserModule, // Import UserModule to access UserService
-    UserSchemaProvider
+    UserSchemaProvider,
   ],
   providers: [AuthService],
   controllers: [AuthController],

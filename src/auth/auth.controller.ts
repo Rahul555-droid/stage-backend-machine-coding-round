@@ -8,7 +8,6 @@ import {
 } from './dto/auth.dto';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 
-
 @Controller('auth')
 @ApiTags('Auth') // Swagger Tag
 export class AuthController {
