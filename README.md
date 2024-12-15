@@ -5,10 +5,11 @@ below is a small summary.
 
 ## Changes Made :
 1. Implemented all the list apis => GET list , POST list , DELETE list. Added all the validations possible to the APIs . So the client will always know the issue.
-2. Added authentication logic as well via an auth gaurd which validates the api call . This auth gaurd is only active on list controller
-3. Also added user creation (registration) and user verification (login) flow.
-4. Fixed seeding issue, Fixed date string issue among other bugs in code.
-5. Wrote modular and cleaner code.
+2. Added authentication logic as well via an auth gaurd which validates the api call . This auth gaurd is only active on list controller and
+   the rest of the routes like movies , tvshow are still open . As a guest user would want to see them . ( improvments regarding post apis below) 
+4. Also added user creation (registration) and user verification (login) flow.
+5. Fixed seeding issue, Fixed date string issue among other bugs in code.
+6. Wrote modular and cleaner code.
 
 ## Output
 
@@ -31,3 +32,4 @@ register
 ## Potential Improvements 
 1. Adding node cache
 2. Unit testing
+3. Add roles and permission AuthGaurd for POST /movies and POST /tvshow so only admins can modify them
