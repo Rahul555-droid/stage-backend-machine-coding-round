@@ -14,5 +14,5 @@ export class ListItemDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsEnum(ContentType)
-  contentType: string;
+  contentType: ContentType;
 }

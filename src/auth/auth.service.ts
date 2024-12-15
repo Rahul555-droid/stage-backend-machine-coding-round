@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -30,6 +31,11 @@ export class AuthService {
   }
 
   async register(username: string, email: string, password: string) {
+    const existingUser = await this.userService.findByEmail(email);
+    if (existingUser) {
+      throw new ConflictException('email already exists');
+    }
+
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 

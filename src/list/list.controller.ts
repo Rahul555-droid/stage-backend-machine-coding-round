@@ -9,13 +9,20 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiHeader, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from 'src/auth/auth.gaurd';
 import { ListService } from './list.service';
 import { ContentType, ListItemDto } from './dto/list-item.dto';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('list')
 @ApiTags('List') // Groups this controller under the "List" section in Swagger
+@ApiBearerAuth('authorization')
+@ApiHeader({
+  name: 'authorization',
+  description: 'Authorization token',
+  required: true,
+})
 @UseGuards(AuthGuard)
 export class ListController {
   constructor(private readonly listService: ListService) {}
@@ -26,7 +33,7 @@ export class ListController {
     @Body() listItemDto: ListItemDto,
     @Req() req: Request, // Extract userId from request
   ) {
-    const userId = req['user'].id; // Assume the payload contains `id`
+    const userId = req['user'].userId; // Assume the payload contains `id`
     return this.listService.addToList(userId, listItemDto);
   }
 
@@ -37,7 +44,7 @@ export class ListController {
     @Query('limit') limit = 10,
     @Query('offset') offset = 0,
   ) {
-    const userId = req['user'].id;
+    const userId = req['user'].userId;
     return this.listService.listMyItems(userId, +limit, +offset);
   }
 
@@ -48,7 +55,7 @@ export class ListController {
     @Query('type') type: ContentType,
     @Req() req: Request,
   ) {
-    const userId = req['user'].id;
+    const userId = req['user'].userId;
     return this.listService.removeFromList(userId, itemId, type);
   }
 }

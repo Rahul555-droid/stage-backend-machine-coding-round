@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import * as NodeCache from 'node-cache';
 import { Movie, MovieDocument } from 'src/models/movie.schema';
 import { TVShow, TVShowDocument } from 'src/models/tvshow.schema';
 import { User, UserDocument } from 'src/models/user.schema';
@@ -13,8 +12,6 @@ import { ContentType, ListItemDto } from './dto/list-item.dto';
 
 @Injectable()
 export class ListService {
-  private cache = new NodeCache({ stdTTL: 300 }); // Cache with a 5-minute TTL
-
   constructor(
     @InjectModel(Movie.name) private readonly movieModel: Model<MovieDocument>,
     @InjectModel(TVShow.name)
@@ -100,21 +97,14 @@ export class ListService {
    */
   private async validateContentExistence(
     contentId: string,
-    contentType: string,
+    contentType: ContentType,
   ) {
-    const cacheKey = `content_${contentType}_${contentId}`;
-    const cached = this.cache.get(cacheKey);
-
-    if (cached) return true;
-
-    const model = contentType === 'movie' ? this.movieModel : this.tvShowModel;
+    const model = contentType === 'Movie' ? this.movieModel : this.tvShowModel;
     const exists = await model.exists({ _id: contentId });
 
     if (!exists) {
       throw new NotFoundException('Invalid contentId or type');
     }
-
-    this.cache.set(cacheKey, true); // Cache the validation result
   }
 
   /**

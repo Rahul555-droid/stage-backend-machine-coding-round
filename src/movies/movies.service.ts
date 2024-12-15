@@ -11,7 +11,6 @@ export class MoviesService {
   ) {}
 
   async findAll(): Promise<Movie[]> {
-    console.log('testing find all');
     return this.movieModel.find().exec();
   }
 

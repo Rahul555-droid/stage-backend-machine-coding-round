@@ -13,7 +13,7 @@ import { AuthModule } from './auth/auth.module';
     MoviesModule,
     TvshowsModule,
     ListModule,
-    SeedModule,
+    // SeedModule,
     UserModule,
     AuthModule
   ],
