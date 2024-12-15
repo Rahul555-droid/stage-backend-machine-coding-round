@@ -1,14 +1,14 @@
 # OTT Platform "My List" Feature - Developer Evaluation Project
 
 You can see detailed changes in my code in a draft PR here => https://github.com/Rahul555-droid/stage-backend-machine-coding-round/pull/1/files
+below is a small summary.
 
 ## Changes Made :
-1. Implemented all the list apis => GET list , POST list , DELETE list.
+1. Implemented all the list apis => GET list , POST list , DELETE list. Added all the validations possible to the APIs . So the client will always know the issue.
 2. Added authentication logic as well via an auth gaurd which validates the api call . This auth gaurd is only active on list controller
 3. Also added user creation (registration) and user verification (login) flow.
-4. Fixed seeding issue.
-5. Fixed date string issue
-6. Wrote modular and cleaner code.
+4. Fixed seeding issue, Fixed date string issue among other bugs in code.
+5. Wrote modular and cleaner code.
 
 ## Output
 
