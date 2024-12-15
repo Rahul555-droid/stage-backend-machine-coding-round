@@ -13,23 +13,23 @@ below is a small summary.
 
 ## Output
 
-POST list
+POST /list
 ![image](https://github.com/user-attachments/assets/77747cb9-e9b5-4212-9638-9fe6c03f65f0)
 
-GET list
+GET /list
 ![image](https://github.com/user-attachments/assets/bc2e3f2b-1948-4584-8c6e-8d017c5748f7)
 
-DELETE list
+DELETE /list
 ![image](https://github.com/user-attachments/assets/e204e423-11a1-424a-aec2-17027450fa2e)
 
-login 
+POST /login 
 ![image](https://github.com/user-attachments/assets/fd943d8e-b5c0-45bb-b89c-0880976f5d26)
 
-register
+POST /register
 ![image](https://github.com/user-attachments/assets/72cbb088-80b1-4523-a117-a7e157421477)
 
 
 ## Potential Improvements 
 1. Adding node cache
 2. Unit testing
-3. Add roles and permission AuthGaurd for POST /movies and POST /tvshow so only admins can modify them
+3. Add roles and permission layer(similar to the auth gaurd I implemented for user verification) for POST /movies and POST /tvshow so only admins can modify them
