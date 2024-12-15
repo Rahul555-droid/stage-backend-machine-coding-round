@@ -24,7 +24,7 @@ export class SeedService implements OnModuleInit {
       this.logger.log('Seeding the database...');
 
       // Clear existing data (optional)
-      await this.userModel.deleteMany({});
+      // await this.userModel.deleteMany({});
       await this.tvShowModel.deleteMany({});
       await this.movieModel.deleteMany({});
 

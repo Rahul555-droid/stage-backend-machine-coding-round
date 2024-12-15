@@ -51,6 +51,10 @@ export class ListService {
    * Remove an item from the user's list.
    */
   async removeFromList(userId: string, itemId: string, type: ContentType) {
+    if (!type) {
+      throw new NotFoundException('type not found in query params');
+    }
+
     const user = await this.findUserById(userId);
 
     // Filter the list to exclude the item
@@ -72,10 +76,7 @@ export class ListService {
    * List items in the user's list with pagination.
    */
   async listMyItems(userId: string, limit = 10, offset = 0) {
-    const user = await this.userModel
-      .findById(userId)
-      .populate('myList.contentId') // Populate content details
-      .exec();
+    const user = await this.userModel.findById(userId).select('myList').exec();
 
     if (!user) {
       throw new NotFoundException('User not found');

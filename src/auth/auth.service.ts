@@ -21,7 +21,7 @@ export class AuthService {
     }
 
     // Validate password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await bcrypt.compare(password, user.password) || password === user.password ; //added the normal password matching Only for testing/development I am storing password as hashes in my implementation.
     if (!isPasswordValid) {
       throw new BadRequestException('Invalid credentials.');
     }
