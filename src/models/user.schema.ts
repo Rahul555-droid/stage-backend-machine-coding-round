@@ -9,6 +9,12 @@ export class User {
   @Prop({ required: true })
   username: string;
 
+  @Prop({ required: true, unique: true }) // Email must be unique
+  email: string;
+
+  @Prop({ required: true }) // Password is required
+  password: string;
+
   @Prop({
     type: [
       {

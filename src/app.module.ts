@@ -1,9 +1,10 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { MoviesModule } from './movies/movies.module';
-import { TvshowsModule } from './tvshows/tvshows.module';
 import { ListModule } from './list/list.module';
+import { MoviesModule } from './movies/movies.module';
 import { SeedModule } from './seed/seed.module';
+import { TvshowsModule } from './tvshows/tvshows.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -11,7 +12,8 @@ import { SeedModule } from './seed/seed.module';
     MoviesModule,
     TvshowsModule,
     ListModule,
-    SeedModule
+    SeedModule,
+    UserModule,
   ],
 })
 export class AppModule {}

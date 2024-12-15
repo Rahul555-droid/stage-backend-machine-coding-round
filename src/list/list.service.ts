@@ -1,51 +1,89 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { List, ListDocument } from 'src/models/list.schema';
+import * as NodeCache from 'node-cache';
 import { Movie, MovieDocument } from 'src/models/movie.schema';
 import { TVShow, TVShowDocument } from 'src/models/tvshow.schema';
 import { User, UserDocument } from 'src/models/user.schema';
+import { List, ListDocument } from 'src/models/list.schema';
 
 @Injectable()
 export class ListService {
+  private cache = new NodeCache({ stdTTL: 300 }); // Cache with 5-minute TTL
+
   constructor(
-    @InjectModel(List.name) private listModel: Model<ListDocument>,
     @InjectModel(Movie.name) private movieModel: Model<MovieDocument>,
     @InjectModel(TVShow.name) private tvShowModel: Model<TVShowDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @InjectModel(List.name) private listModel: Model<ListDocument>,
   ) {}
 
-  async addToList(itemId: string, type: 'movie' | 'tvshow') {
-    // Step 1: Validate the item type and existence
-    let itemExists = null;
-    if (type === 'movie') {
-      itemExists = await this.movieModel.exists({ _id: itemId });
-    } else if (type === 'tvshow') {
-      itemExists = await this.tvShowModel.exists({ _id: itemId });
-    }
-
-    if (!itemExists) {
-      throw new BadRequestException('Invalid itemId or type.');
-    }
+  // Add item to the user's list
+  async addToList(userId: string, itemId: string, type: 'movie' | 'tvshow') {
+    // Step 1: Validate content existence
+    await this.validateItemExistence(itemId, type);
 
     // Step 2: Check for duplicates
-    const duplicate = await this.listModel.findOne({ itemId, type });
-    if (duplicate) {
-      throw new BadRequestException('Item already exists in the list.');
+    const isDuplicate = await this.checkDuplicateEntry(userId, itemId, type);
+    if (isDuplicate) {
+      throw new ConflictException('Item already exists in the list.');
     }
 
-    // Step 3: Add item to the list
-    const newListItem = new this.listModel({ itemId, type });
-    return newListItem.save();
+    // Step 3: Add to list
+    const newListItem = new this.listModel({ userId, itemId, type });
+    await newListItem.save();
+    return { message: 'Item successfully added to the list.' };
   }
 
-  async listMyItems(limit = 10, offset = 0) {
-    return this.listModel.aggregate([
+  // Remove item from the user's list
+  async removeFromList(
+    userId: string,
+    itemId: string,
+    type: 'movie' | 'tvshow',
+  ) {
+    const item = await this.listModel.findOneAndDelete({
+      userId,
+      itemId,
+      type,
+    });
+    if (!item) {
+      throw new NotFoundException('Item not found in the list.');
+    }
+    return { message: 'Item successfully removed from the list.' };
+  }
+
+  // List items in the user's list with pagination
+  async listMyItems(userId: string, limit = 10, offset = 0) {
+    const cacheKey = `list_${userId}_${limit}_${offset}`;
+    const cachedData = this.cache.get(cacheKey);
+
+    if (cachedData) return cachedData;
+
+    // const populatedList = await Promise.all(
+    //   user.myList.map(async (item) => {
+    //     if (item.contentType === 'Movie') {
+    //       const movie = await this.movieModel.findById(item.itemId).exec();
+    //       return { ...item.toObject(), details: movie };
+    //     } else if (item.contentType === 'TVShow') {
+    //       const tvShow = await this.tvShowModel.findById(item.itemId).exec();
+    //       return { ...item.toObject(), details: tvShow };
+    //     }
+    //     return item; // If contentType doesn't match, return as is.
+    //   }),
+    // );
+
+    const items = await this.listModel.aggregate([
+      { $match: { userId } },
       { $skip: offset },
       { $limit: limit },
       {
         $lookup: {
-          from: 'movies', // MongoDB collection name for movies
+          from: 'movies',
           localField: 'itemId',
           foreignField: '_id',
           as: 'movieDetails',
@@ -53,7 +91,7 @@ export class ListService {
       },
       {
         $lookup: {
-          from: 'tvshows', // MongoDB collection name for TV shows
+          from: 'tvshows',
           localField: 'itemId',
           foreignField: '_id',
           as: 'tvShowDetails',
@@ -69,14 +107,40 @@ export class ListService {
         },
       },
     ]);
+
+    this.cache.set(cacheKey, items); // Cache results
+    return items;
   }
-   
-  async removeFromList(itemId: string, type: 'movie' | 'tvshow') {
-    const item = await this.listModel.findOneAndDelete({ itemId, type });
-    if (!item) {
-      throw new BadRequestException('Item not found in the list.');
+
+  // Utility: Validate content existence
+  private async validateItemExistence(
+    itemId: string,
+    type: 'movie' | 'tvshow',
+  ) {
+    const cacheKey = `content_${type}_${itemId}`;
+    const cachedItem = this.cache.get(cacheKey);
+
+    if (cachedItem) return cachedItem;
+
+    const itemExists =
+      type === 'movie'
+        ? await this.movieModel.exists({ _id: itemId })
+        : await this.tvShowModel.exists({ _id: itemId });
+
+    if (!itemExists) {
+      throw new NotFoundException('Invalid itemId or type.');
     }
-    return { message: 'Item successfully removed from the list.' };
+
+    this.cache.set(cacheKey, true); // Cache validation
   }
-    
+
+  // Utility: Check duplicate entry
+  private async checkDuplicateEntry(
+    userId: string,
+    itemId: string,
+    type: 'movie' | 'tvshow',
+  ) {
+    const duplicate = await this.listModel.findOne({ userId, itemId, type });
+    return !!duplicate;
+  }
 }
