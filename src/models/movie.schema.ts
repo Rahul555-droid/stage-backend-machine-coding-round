@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { genre } from '../constants/constants';
+import { MongooseModule } from '@nestjs/mongoose';
 
 export type MovieDocument = Movie & Document;
 
@@ -33,3 +34,7 @@ export class Movie {
 }
 
 export const MovieSchema = SchemaFactory.createForClass(Movie);
+
+export const MovieSchemaProvider = MongooseModule.forFeature([
+  { name: Movie.name, schema: MovieSchema },
+]);

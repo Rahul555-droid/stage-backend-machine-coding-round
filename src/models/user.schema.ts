@@ -1,12 +1,20 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-export type UserDocument = User & Document;
 import { genre } from '../constants/constants';
+export type UserDocument = User & Document;
 
 @Schema()
 export class User {
+  _id: string; // Add this field to include the MongoDB _id
+
   @Prop({ required: true })
   username: string;
+
+  @Prop({ required: true, unique: true }) // Email must be unique
+  email: string;
+
+  @Prop({ required: true }) // Password is required
+  password: string;
 
   @Prop({
     type: [
@@ -54,3 +62,6 @@ export class User {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+export const UserSchemaProvider = MongooseModule.forFeature([
+  { name: User.name, schema: UserSchema },
+]);
